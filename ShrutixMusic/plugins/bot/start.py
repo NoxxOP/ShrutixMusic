@@ -3,7 +3,7 @@ import time
 from pyrogram import filters
 from pyrogram.enums import ChatType
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
-from youtubesearchpython.__future__ import VideosSearch
+py-yt-search
 
 import config
 from ShrutixMusic import nand
@@ -150,3 +150,4 @@ async def welcome(client, message: Message):
                 await message.stop_propagation()
         except Exception as ex:
             print(ex)
+
