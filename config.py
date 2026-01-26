@@ -22,7 +22,7 @@ DURATION_LIMIT_MIN = int(getenv("DURATION_LIMIT", 60))
 LOGGER_ID = int(getenv("LOGGER_ID"))
 
 # Get this value from @FallenxBot on Telegram by /id
-OWNER_ID = int(getenv("OWNER_ID", 7574330905))
+OWNER_ID = int(getenv("OWNER_ID", 8211189367))
 
 ## Fill these variables if you're deploying on heroku.
 # Your heroku app name
@@ -39,8 +39,8 @@ GIT_TOKEN = getenv(
     "GIT_TOKEN", None
 )  # Fill this variable if your upstream repository is private
 
-SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/ShrutiBots")
-SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/ShrutiBotSupport")
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/Love_Bot_143")
+SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/+qEkrEQlft5E0NWI1")
 
 # Set this to True if you want the assistant to automatically leave chats after an interval
 AUTO_LEAVING_ASSISTANT = bool(getenv("AUTO_LEAVING_ASSISTANT", False))
@@ -78,7 +78,7 @@ confirmer = {}
 
 
 START_IMG_URL = getenv(
-    "START_IMG_URL", "https://telegra.ph/file/5c8d3994b93174a57d7f3-608459ffaf02cf2a9b.jpg"
+    "START_IMG_URL", "https://files.catbox.moe/r7r0y3.mp4"
 )
 PING_IMG_URL = getenv(
     "PING_IMG_URL", "https://telegra.ph/file/c8b09659c837cd9142601-f594bfd29076e79944.jpg"
