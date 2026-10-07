@@ -1,9 +1,13 @@
 import asyncio
+import re
 from typing import Union
 
 from ShrutixMusic.misc import db
 from ShrutixMusic.utils.formatters import check_duration, seconds_to_min
+from ShrutixMusic.utils.stream.seed import set_seed
 from config import autoclean, time_to_seconds
+
+_YOUTUBE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{11}$")
 
 
 async def put_queue(
@@ -19,6 +23,8 @@ async def put_queue(
     forceplay: Union[bool, str] = None,
 ):
     title = title.title()
+    if user != "Autoplay" and vidid and _YOUTUBE_ID_RE.match(str(vidid)):
+        set_seed(chat_id, vidid)
     try:
         duration_in_seconds = time_to_seconds(duration) - 3
     except:
