@@ -10,6 +10,7 @@ from ShrutixMusic.utils.formatters import seconds_to_min
 from ShrutixMusic.utils.rich_stream import send_now_playing_rich
 from ShrutixMusic.utils.stream.history import record_played, was_recently_played
 from ShrutixMusic.utils.stream.queue import put_queue
+from ShrutixMusic.utils.stream.seed import get_seed
 from ShrutixMusic.utils.thumbnails import get_thumb
 from strings import get_string
 
@@ -113,7 +114,10 @@ async def _pick(chat_id, entry, video, timeout):
 async def _fetch_tracks(chat_id, entry):
     try:
         fresh = await get_autoplay(
-            entry["source_id"], timeout=API_TIMEOUT, retries=API_RETRIES
+            entry["source_id"],
+            timeout=API_TIMEOUT,
+            retries=API_RETRIES,
+            seed_id=get_seed(chat_id),
         )
     except Exception:
         fresh = []
