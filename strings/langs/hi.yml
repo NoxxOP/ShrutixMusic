@@ -205,6 +205,9 @@ RICH_BTN_QUEUE : "☰ कतार · {0}"
 
 RICH_BTN_PLAYNOW : "▷ अभी चलाएं"
 RICH_BTN_END : "▢ समाप्त"
+RICH_BTN_END_QUEUE : "▢ कतार समाप्त"
+RICH_BTN_AUTOPLAY_ON : "ऑटोप्ले: चालू"
+RICH_BTN_AUTOPLAY_OFF : "ऑटोप्ले: बंद"
 RICH_PLAYNOW_GONE : "» यह ट्रैक अब कतार में नहीं है।"
 RICH_PLAYNOW_DONE : "➻ अभी चलाया जा रहा है 🎄\n│ \n└द्वारा : {0} 🥀"
 
