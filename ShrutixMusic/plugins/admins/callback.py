@@ -7,15 +7,19 @@ from ShrutixMusic import YouTube, nand
 from ShrutixMusic.core.call import Shruti
 from ShrutixMusic.misc import SUDOERS, db
 from ShrutixMusic.utils.database import (
+    autoplay_off,
+    autoplay_on,
     get_active_chats,
     get_upvote_count,
     is_active_chat,
+    is_autoplay,
     is_music_playing,
     is_nonadmin_chat,
     music_off,
     music_on,
     set_loop,
 )
+from ShrutixMusic.utils.decorators.admins import ActualAdminCB
 from ShrutixMusic.utils.decorators.language import languageCB
 from ShrutixMusic.utils.formatters import seconds_to_min
 from ShrutixMusic.utils.inline import close_markup
@@ -420,6 +424,20 @@ async def nowplaying_queue_alert(client, CallbackQuery):
         return await CallbackQuery.answer("Queue is empty.", show_alert=True)
     lines = [f"{i}. {t['title'][:40]}" for i, t in enumerate(upcoming[:10], start=1)]
     await CallbackQuery.answer("\n".join(lines), show_alert=True)
+
+
+@nand.on_callback_query(filters.regex(r"^nowplaying_autoplay ") & ~BANNED_USERS)
+@ActualAdminCB
+async def nowplaying_autoplay_toggle(client, CallbackQuery, _):
+    chat_id = int(CallbackQuery.data.split(None, 1)[1])
+    if await is_autoplay(chat_id):
+        await autoplay_off(chat_id)
+        toast = "Autoplay turned OFF"
+    else:
+        await autoplay_on(chat_id)
+        toast = "Autoplay turned ON"
+    await CallbackQuery.answer(toast, show_alert=False)
+    await set_now_playing_state(chat_id, await is_music_playing(chat_id))
 
 
 asyncio.create_task(markup_timer())
