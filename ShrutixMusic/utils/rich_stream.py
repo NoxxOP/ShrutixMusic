@@ -5,7 +5,7 @@ import re
 from pyrogram import enums, errors, types
 
 from ShrutixMusic.misc import db
-from ShrutixMusic.utils.database import get_lang
+from ShrutixMusic.utils.database import get_lang, is_autoplay
 from ShrutixMusic.utils.formatters import seconds_to_min, time_to_seconds
 from strings import get_string
 
@@ -137,7 +137,7 @@ def _queue_len(chat_id):
     return max(len(tracks) - 1, 0) if tracks else 0
 
 
-def _control_rows(_, chat_id, playing, styles):
+def _control_rows(_, chat_id, playing, styles, autoplay_on):
     replay_style, toggle_style, skip_style, queue_style = styles
     toggle = (
         types.RichMessageButton(
@@ -175,20 +175,34 @@ def _control_rows(_, chat_id, playing, styles):
                     style=queue_style,
                     callback_data=f"nowplaying_queue {chat_id}",
                 ),
+                types.RichMessageButton(
+                    text=_["RICH_BTN_END_QUEUE"],
+                    style=enums.ButtonStyle.DANGER,
+                    callback_data=f"ADMIN Stop|{chat_id}",
+                ),
+            ]
+        ),
+        types.InputRichBlockButtons(
+            buttons=[
+                types.RichMessageButton(
+                    text=_["RICH_BTN_AUTOPLAY_ON"] if autoplay_on else _["RICH_BTN_AUTOPLAY_OFF"],
+                    style=enums.ButtonStyle.SUCCESS if autoplay_on else enums.ButtonStyle.DEFAULT,
+                    callback_data=f"nowplaying_autoplay {chat_id}",
+                ),
             ]
         ),
     ]
 
 
 def build_now_playing_blocks(
-    _, photo, caption_html, chat_id, played=None, dur=None, playing=True
+    _, photo, caption_html, chat_id, played=None, dur=None, playing=True, autoplay_on=False
 ):
     blocks = [types.InputRichBlockPhoto(photo=types.InputMediaPhoto(photo))]
     blocks += _html_caption_to_blocks(caption_html)
     styles = _random_styles()
     if played and dur:
         blocks.append(_progress_row(played, dur, styles[4]))
-    blocks += _control_rows(_, chat_id, playing, styles[:4])
+    blocks += _control_rows(_, chat_id, playing, styles[:4], autoplay_on)
     return blocks
 
 
@@ -274,7 +288,9 @@ async def send_now_playing_rich(
     client, chat_id, target_chat_id, photo, caption_html, replace=None
 ):
     _ = await _lang(chat_id)
-    blocks = build_now_playing_blocks(_, photo, caption_html, chat_id)
+    blocks = build_now_playing_blocks(
+        _, photo, caption_html, chat_id, autoplay_on=await is_autoplay(chat_id)
+    )
     msg = await _deliver(client, target_chat_id, blocks, replace)
     if db.get(chat_id):
         db[chat_id][0]["np_photo"] = photo
@@ -331,7 +347,9 @@ async def update_now_playing_progress(mystic, chat_id, played, dur, playing=True
     if not photo or not caption_html:
         return None
     _ = await _lang(chat_id)
-    blocks = build_now_playing_blocks(_, photo, caption_html, chat_id, played, dur, playing)
+    blocks = build_now_playing_blocks(
+        _, photo, caption_html, chat_id, played, dur, playing, await is_autoplay(chat_id)
+    )
     return await _edit_rich(mystic, blocks)
 
 
@@ -347,7 +365,9 @@ async def set_now_playing_state(chat_id, playing):
     played = seconds_to_min(info[0].get("played", 0)) or None
     dur = info[0].get("dur")
     _ = await _lang(chat_id)
-    blocks = build_now_playing_blocks(_, photo, caption_html, chat_id, played, dur, playing)
+    blocks = build_now_playing_blocks(
+        _, photo, caption_html, chat_id, played, dur, playing, await is_autoplay(chat_id)
+    )
     try:
         return await _edit_rich(mystic, blocks)
     except Exception:
