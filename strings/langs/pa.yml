@@ -206,6 +206,9 @@ RICH_BTN_QUEUE : "☰ ਕਤਾਰ · {0}"
 
 RICH_BTN_PLAYNOW : "▷ ਹੁਣੇ ਚਲਾਓ"
 RICH_BTN_END : "▢ ਖ਼ਤਮ"
+RICH_BTN_END_QUEUE : "▢ ਕਤਾਰ ਖ਼ਤਮ"
+RICH_BTN_AUTOPLAY_ON : "ਆਟੋਪਲੇ: ਚਾਲੂ"
+RICH_BTN_AUTOPLAY_OFF : "ਆਟੋਪਲੇ: ਬੰਦ"
 RICH_PLAYNOW_GONE : "» ਇਹ ਟਰੈਕ ਹੁਣ ਕਤਾਰ ਵਿੱਚ ਨਹੀਂ ਹੈ।"
 RICH_PLAYNOW_DONE : "➻ ਹੁਣੇ ਚੱਲ ਰਿਹਾ ਹੈ 🎄\n│ \n└ਦੁਆਰਾ : {0} 🥀"
 
