@@ -207,6 +207,9 @@ RICH_BTN_QUEUE : "☰ Queue · {0}"
 
 RICH_BTN_PLAYNOW : "▷ Play Now"
 RICH_BTN_END : "▢ End"
+RICH_BTN_END_QUEUE : "▢ End Queue"
+RICH_BTN_AUTOPLAY_ON : "Autoplay: On"
+RICH_BTN_AUTOPLAY_OFF : "Autoplay: Off"
 RICH_PLAYNOW_GONE : "» ᴛʜɪs ᴛʀᴀᴄᴋ ɪs ɴᴏ ʟᴏɴɢᴇʀ ɪɴ ǫᴜᴇᴜᴇ."
 RICH_PLAYNOW_DONE : "➻ ᴘʟᴀʏɪɴɢ ɴᴏᴡ 🎄\n│ \n└ʙʏ : {0} 🥀"
 
