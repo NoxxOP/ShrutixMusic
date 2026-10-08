@@ -219,6 +219,9 @@ RICH_BTN_QUEUE : "☰ قائمة الانتظار · {0}"
 
 RICH_BTN_PLAYNOW : "▷ شغّل الآن"
 RICH_BTN_END : "▢ إنهاء"
+RICH_BTN_END_QUEUE : "▢ إنهاء القائمة"
+RICH_BTN_AUTOPLAY_ON : "التشغيل التلقائي: مفعّل"
+RICH_BTN_AUTOPLAY_OFF : "التشغيل التلقائي: متوقف"
 RICH_PLAYNOW_GONE : "» هذا المقطع لم يعد في قائمة الانتظار."
 RICH_PLAYNOW_DONE : "➻ يتم التشغيل الآن 🎄\n│ \n└بواسطة: {0} 🥀"
 
