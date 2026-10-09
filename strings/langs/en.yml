@@ -199,6 +199,18 @@ SONG_LIVE : "Lɪᴠᴇ sᴛʀᴇᴀᴍs ᴄᴀɴ'ᴛ ʙᴇ ᴅᴏᴡɴʟᴏᴀ�
 SONG_TOO_LONG : "Tʜɪs ᴛʀᴀᴄᴋ ɪs ʟᴏɴɢᴇʀ ᴛʜᴀɴ {0} ᴍɪɴᴜᴛᴇs."
 SONG_TOO_BIG : "Tʜᴀᴛ ғɪʟᴇ ɪs ᴛᴏᴏ ʙɪɢ ғᴏʀ Tᴇʟᴇɢʀᴀᴍ."
 
+ACTIVE_LOADING : "<b>Fᴇᴛᴄʜɪɴɢ Aᴄᴛɪᴠᴇ Cʜᴀᴛs...</b>"
+ACTIVE_EMPTY : "<b>Nᴏ Aᴄᴛɪᴠᴇ {0} Cʜᴀᴛs\n\nNᴏᴛʜɪɴɢ Is Pʟᴀʏɪɴɢ Tʜʀᴏᴜɢʜ {1} Rɪɢʜᴛ Nᴏᴡ.</b>"
+ACTIVE_MORE : "<b>Aɴᴅ {0} Mᴏʀᴇ Cʜᴀᴛs Nᴏᴛ Sʜᴏᴡɴ</b>"
+ACTIVE_LIST : "<b>Aᴄᴛɪᴠᴇ {0} Cʜᴀᴛs : {1}</b>\n\n{3}\n\n<b>Fᴇᴛᴄʜᴇᴅ Iɴ {4}s Bʏ {2}</b>"
+ACTIVE_BTN_REFRESH : "Rᴇғʀᴇsʜ"
+ACTIVE_BTN_CLOSE : "Cʟᴏsᴇ"
+ACTIVE_KIND_VOICE : "ᴠᴏɪᴄᴇ"
+ACTIVE_KIND_VIDEO : "ᴠɪᴅᴇᴏ"
+ACTIVE_FAILED : "<b>Cᴏᴜʟᴅ Nᴏᴛ Fᴇᴛᴄʜ Tʜᴇ Aᴄᴛɪᴠᴇ Cʜᴀᴛs. Pʟᴇᴀsᴇ Tʀʏ Aɢᴀɪɴ.</b>"
+ACTIVE_WAIT : "<b>Pʟᴇᴀsᴇ Wᴀɪᴛ A Fᴇᴡ Sᴇᴄᴏɴᴅs Bᴇғᴏʀᴇ Rᴇғʀᴇsʜɪɴɢ Aɢᴀɪɴ.</b>"
+ACTIVE_REFRESHING : "<b>Rᴇғʀᴇsʜɪɴɢ...</b>"
+
 RICH_BTN_REPLAY : "↺ Replay"
 RICH_BTN_PAUSE : "II Pause"
 RICH_BTN_RESUME : "▷ Resume"
