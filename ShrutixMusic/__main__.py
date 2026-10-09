@@ -1,5 +1,6 @@
 import asyncio
 import importlib
+import logging
 
 from pyrogram import idle
 from pytgcalls.exceptions import NoActiveGroupCall
@@ -11,6 +12,15 @@ from ShrutixMusic.misc import sudo
 from ShrutixMusic.plugins import ALL_MODULES
 from ShrutixMusic.utils.database import get_banned_users, get_gbanned
 from config import BANNED_USERS
+
+
+class _EndedCallNoiseFilter(logging.Filter):
+    def filter(self, record):
+        message = record.getMessage()
+        return not ("SetVideoCallStatus" in message and "GROUPCALL_FORBIDDEN" in message)
+
+
+logging.getLogger("asyncio").addFilter(_EndedCallNoiseFilter())
 
 
 async def init():
