@@ -9,7 +9,7 @@ from ShrutixMusic.utils.database import get_lang, is_autoplay
 from ShrutixMusic.utils.formatters import seconds_to_min, time_to_seconds
 from strings import get_string
 
-_TAG_RE = re.compile(r"<(/?)(b|a)(?:\s+href=([^>]+))?>", re.IGNORECASE)
+_TAG_RE = re.compile(r"<(/?)(b|a|code)(?:\s+href=([^>]+))?>", re.IGNORECASE)
 
 _consumed = set()
 
@@ -41,6 +41,8 @@ def _parse_inline(segment):
             inner = inner[0] if len(inner) == 1 else inner if inner else ""
             if open_tag == "b":
                 parts.append(types.RichTextBold(text=inner))
+            elif open_tag == "code":
+                parts.append(types.RichTextCode(text=inner))
             else:
                 parts.append(types.RichTextUrl(text=inner, url=url))
 
