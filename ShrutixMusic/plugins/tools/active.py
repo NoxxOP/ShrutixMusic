@@ -114,12 +114,12 @@ async def _launch(message: Message, kind):
             pass
 
 
-@nand.on_message(filters.command(["activevc", "activevoice", "ac"]) & SUDOERS)
+@nand.on_message(filters.command(["activevc", "activevoice", "activechats", "avc", "ac"]) & SUDOERS)
 async def activevc(client, message: Message):
     await _launch(message, "vc")
 
 
-@nand.on_message(filters.command(["activev", "activevideo"]) & SUDOERS)
+@nand.on_message(filters.command(["activev", "activevideo", "activevideos", "avideo", "av"]) & SUDOERS)
 async def activevi_(client, message: Message):
     await _launch(message, "video")
 
