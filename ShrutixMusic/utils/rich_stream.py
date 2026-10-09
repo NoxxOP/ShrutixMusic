@@ -116,6 +116,7 @@ _BUTTON_STYLES = [
 def _random_styles():
     styles = list(_BUTTON_STYLES)
     styles.append(random.choice(_BUTTON_STYLES))
+    styles.append(random.choice(_BUTTON_STYLES))
     random.shuffle(styles)
     return styles
 
@@ -137,7 +138,7 @@ def _queue_len(chat_id):
     return max(len(tracks) - 1, 0) if tracks else 0
 
 
-def _control_rows(_, chat_id, playing, styles, autoplay_on):
+def _control_rows(_, chat_id, playing, styles, autoplay_on, end_style):
     replay_style, toggle_style, skip_style, queue_style = styles
     toggle = (
         types.RichMessageButton(
@@ -177,7 +178,7 @@ def _control_rows(_, chat_id, playing, styles, autoplay_on):
                 ),
                 types.RichMessageButton(
                     text=_["RICH_BTN_END_QUEUE"],
-                    style=enums.ButtonStyle.DANGER,
+                    style=end_style,
                     callback_data=f"ADMIN Stop|{chat_id}",
                 ),
             ]
@@ -202,7 +203,7 @@ def build_now_playing_blocks(
     styles = _random_styles()
     if played and dur:
         blocks.append(_progress_row(played, dur, styles[4]))
-    blocks += _control_rows(_, chat_id, playing, styles[:4], autoplay_on)
+    blocks += _control_rows(_, chat_id, playing, styles[:4], autoplay_on, styles[5])
     return blocks
 
 
