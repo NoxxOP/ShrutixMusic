@@ -7,6 +7,7 @@ from ShrutixMusic.misc import db
 from ShrutixMusic.platforms.Youtube import get_autoplay, is_external_path
 from ShrutixMusic.utils.database import get_lang, is_autoplay
 from ShrutixMusic.utils.formatters import seconds_to_min
+from ShrutixMusic.utils.logger import autoplay_logs
 from ShrutixMusic.utils.rich_stream import send_now_playing_rich
 from ShrutixMusic.utils.stream.history import record_played, was_recently_played
 from ShrutixMusic.utils.stream.queue import put_queue
@@ -262,4 +263,11 @@ async def try_autoplay(chat_id, popped) -> bool:
     )
     db[chat_id][0]["mystic"] = run
     db[chat_id][0]["markup"] = "stream"
+    await autoplay_logs(
+        original_chat_id,
+        title,
+        next_id,
+        popped.get("title"),
+        video,
+    )
     return True
