@@ -38,7 +38,7 @@
       "required": true
     },
     "STRING_SESSION": {
-      "description": "A Kurigram-compatible user session string from @StringFatherBot on Telegram.",
+      "description": "A Kurigram-compatible pyrogram user session string from @Sessionbbbot on Telegram.",
       "value": "",
       "required": true
     },
@@ -59,11 +59,11 @@
     },
     "SHRUTI_API_URL": {
       "description": "Your Shruti API URL",
-      "value": "https://api.shrutibots.site",
+      "value": "https://api.shrutibots.in",
       "required": true
     },
     "SHRUTI_API_KEY": {
-      "description": "Get API key from Telegram bot @SHRUTIAPIBOT",
+      "description": "Get API key from Telegram bot @SHRUTIAPIBOT or dash.shrutibots.in",
       "value": "",
       "required": true
     }
