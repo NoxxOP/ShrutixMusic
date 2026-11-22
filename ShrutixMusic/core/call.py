@@ -24,13 +24,14 @@ from ShrutixMusic.utils.database import (
     is_active_chat,
     is_autoend,
     music_on,
+    music_off,
     remove_active_chat,
     remove_active_video_chat,
     set_loop,
 )
 from ShrutixMusic.utils.exceptions import AssistantErr
 from ShrutixMusic.utils.formatters import check_duration, seconds_to_min, speed_converter
-from ShrutixMusic.utils.rich_stream import send_now_playing_rich
+from ShrutixMusic.utils.rich_stream import release_mystic, send_now_playing_rich
 from ShrutixMusic.utils.stream.autoclear import auto_clean
 from ShrutixMusic.utils.stream.autoplay import discard_prefetch, try_autoplay
 from ShrutixMusic.utils.stream.history import record_played
@@ -42,8 +43,12 @@ counter = {}
 
 
 async def _clear_(chat_id):
+    current = db.get(chat_id) or []
+    if current:
+        await release_mystic(current[0].get("mystic"))
     db[chat_id] = []
     discard_prefetch(chat_id)
+    await music_off(chat_id)
     await remove_active_video_chat(chat_id)
     await remove_active_chat(chat_id)
 
@@ -221,10 +226,10 @@ class Call(PyTgCalls):
 
     async def stop_stream(self, chat_id: int):
         assistant = await group_assistant(self, chat_id)
+        await _clear_(chat_id)
         try:
-            await _clear_(chat_id)
             await assistant.leave_call(chat_id)
-        except:
+        except NoActiveGroupCall:
             pass
 
     async def stop_stream_force(self, chat_id: int):
@@ -644,8 +649,16 @@ class Call(PyTgCalls):
     async def decorators(self):
         clients = [self.one, self.two, self.three, self.four, self.five]
 
-        async def stream_services_handler(_, update):
-            await self.stop_stream(update.chat_id)
+        async def stream_services_handler(client, update):
+            if not db.get(update.chat_id) and not await is_active_chat(update.chat_id):
+                return
+            LOGGER(__name__).warning(
+                "Assistant left the voice chat %s (status: %s); clearing stale playback state",
+                update.chat_id,
+                update.status,
+            )
+            async with self.chat_lock(update.chat_id):
+                await _clear_(update.chat_id)
 
         async def stream_end_handler(client, update: StreamEnded):
             if update.chat_id in self._prejoin_tasks:

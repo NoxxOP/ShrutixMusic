@@ -56,6 +56,11 @@ packages(){
 		fi
 	fi
 
+	if ! command -v ffprobe &>/dev/null || ! timeout 20s ffprobe -h full >/dev/null 2>&1; then
+		pprint "FFprobe did not complete its 20-second PyTgCalls health check. Reinstall FFmpeg with: sudo apt install --reinstall ffmpeg\n" "cred"
+		exit 1
+	fi
+
 	# Check ffmpeg version and warn user if necessary.
 	fv=$(grep -Po 'version (3.*?) ' <<< $(ffmpeg -version)) &&
 	pprint "Playing live streams not going to work since you have ffmpeg $fv, live streams are supported by version 4+.\n" "cblue"

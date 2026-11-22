@@ -90,6 +90,26 @@ async def _wants_prejoin(message, chat_id, playmode, url):
     return len(message.command) >= 2
 
 
+def _play_error(_, error):
+    if isinstance(error, TimeoutError):
+        return (
+            "Playback check timed out: FFprobe did not finish its 20-second "
+            "check. Verify or reinstall FFmpeg/FFprobe on the server, then "
+            "restart the bot."
+        )
+    error_type = type(error).__name__
+    return error if error_type == "AssistantErr" else _["general_2"].format(
+        f"{error_type}: {error}"
+    )
+
+
+async def _edit_or_send(status_message, text):
+    try:
+        return await status_message.edit_text(text)
+    except Exception:
+        return await nand.send_message(status_message.chat.id, text)
+
+
 async def _play_flow(
     client,
     message: Message,
@@ -153,9 +173,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                ex_type = type(e).__name__
-                err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
-                return await mystic.edit_text(err)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return
         return
     elif video_telegram:
@@ -197,9 +215,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                ex_type = type(e).__name__
-                err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
-                return await mystic.edit_text(err)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return
         return
     elif url:
@@ -330,9 +346,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                ex_type = type(e).__name__
-                err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
-                return await mystic.edit_text(err)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return
         else:
             try:
@@ -344,7 +358,10 @@ async def _play_flow(
                     text=_["play_17"],
                 )
             except Exception as e:
-                return await mystic.edit_text(_["general_2"].format(f"{type(e).__name__}: {e}"))
+                return await _edit_or_send(
+                    mystic,
+                    _["general_2"].format(f"{type(e).__name__}: {e}"),
+                )
             await mystic.edit_text(_["str_2"])
             try:
                 await stream(
@@ -360,9 +377,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                ex_type = type(e).__name__
-                err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
-                return await mystic.edit_text(err)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return await play_logs(message, streamtype="M3u8 or Index Link")
     else:
         if len(message.command) < 2:
@@ -416,9 +431,7 @@ async def _play_flow(
                 forceplay=fplay,
             )
         except Exception as e:
-            ex_type = type(e).__name__
-            err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
-            return await mystic.edit_text(err)
+            return await _edit_or_send(mystic, _play_error(_, e))
         return await play_logs(message, streamtype=streamtype)
     else:
         if plist_type:
@@ -560,9 +573,7 @@ async def _play_music_flow(
             forceplay=ffplay,
         )
     except Exception as e:
-        ex_type = type(e).__name__
-        err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
-        return await mystic.edit_text(err)
+        return await _edit_or_send(mystic, _play_error(_, e))
     return
 
 
@@ -658,9 +669,7 @@ async def play_playlists_command(client, CallbackQuery, _):
             forceplay=ffplay,
         )
     except Exception as e:
-        ex_type = type(e).__name__
-        err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
-        return await mystic.edit_text(err)
+        return await _edit_or_send(mystic, _play_error(_, e))
     return
 
 

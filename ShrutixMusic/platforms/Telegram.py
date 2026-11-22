@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import time
 from typing import Union
@@ -13,6 +14,8 @@ from ShrutixMusic.utils.formatters import (
     get_readable_time,
     seconds_to_min,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 
 class TeleAPI:
@@ -163,14 +166,18 @@ class TeleAPI:
                 except:
                     elapsed = "0 sᴇᴄᴏɴᴅs"
                 await mystic.edit_text(_["tg_2"].format(elapsed))
-            except:
-                await mystic.edit_text(_["tg_3"])
+                return True
+            except Exception:
+                LOGGER.exception("Telegram media download failed")
+                try:
+                    await mystic.edit_text(_["tg_3"])
+                except Exception:
+                    await nand.send_message(message.chat.id, _["tg_3"])
+                return False
 
         task = asyncio.create_task(down_load())
         config.lyrical[mystic.id] = task
-        await task
-        verify = config.lyrical.get(mystic.id)
-        if not verify:
-            return False
-        config.lyrical.pop(mystic.id)
-        return True
+        try:
+            return await task
+        finally:
+            config.lyrical.pop(mystic.id, None)

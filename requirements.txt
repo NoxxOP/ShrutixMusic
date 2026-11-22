@@ -25,4 +25,3 @@ yt-dlp
 youtube-search
 youtube-search-python
 py-yt-search
-six
