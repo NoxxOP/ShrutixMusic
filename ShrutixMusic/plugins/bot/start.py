@@ -141,7 +141,6 @@ async def welcome(client, message: Message):
                             f"https://t.me/{nand.username}?start=sudolist",
                             config.SUPPORT_CHAT,
                         ),
-                        disable_web_page_preview=True,
                     )
                     return await nand.leave_chat(message.chat.id)
 

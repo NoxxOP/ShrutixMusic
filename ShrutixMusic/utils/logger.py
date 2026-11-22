@@ -26,7 +26,6 @@ async def play_logs(message, streamtype):
                     chat_id=LOGGER_ID,
                     text=logger_text,
                     parse_mode=ParseMode.HTML,
-                    disable_web_page_preview=True,
                 )
             except:
                 pass
@@ -61,7 +60,6 @@ async def autoplay_logs(chat_id, title, video_id, previous_title, video=False):
             chat_id=LOGGER_ID,
             text=logger_text,
             parse_mode=ParseMode.HTML,
-            disable_web_page_preview=True,
         )
     except:
         pass

@@ -197,6 +197,7 @@ SONG_LIVE : "लाइव स्ट्रीम डाउनलोड नही�
 SONG_TOO_LONG : "ये ट्रैक {0} मिनट से लंबा है।"
 SONG_TOO_BIG : "ये फाइल टेलीग्राम के लिए बहुत बड़ी है।"
 
+RICH_NOW_PLAYING : "अभी चल रहा है"
 RICH_BTN_REPLAY : "↺ रीप्ले"
 RICH_BTN_PAUSE : "II रोकें"
 RICH_BTN_RESUME : "▷ चलाएं"

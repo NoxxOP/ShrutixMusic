@@ -198,6 +198,7 @@ SONG_LIVE : "ਲਾਈਵ ਸਟ੍ਰੀਮ ਡਾਊਨਲੋਡ ਨਹੀਂ 
 SONG_TOO_LONG : "ਇਹ ਟਰੈਕ {0} ਮਿੰਟ ਤੋਂ ਲੰਮਾ ਹੈ।"
 SONG_TOO_BIG : "ਇਹ ਫਾਈਲ ਟੈਲੀਗ੍ਰਾਮ ਲਈ ਬਹੁਤ ਵੱਡੀ ਹੈ।"
 
+RICH_NOW_PLAYING : "ਹੁਣ ਚੱਲ ਰਿਹਾ ਹੈ"
 RICH_BTN_REPLAY : "↺ ਰੀਪਲੇ"
 RICH_BTN_PAUSE : "II ਰੋਕੋ"
 RICH_BTN_RESUME : "▷ ਮੁੜ ਚਲਾਓ"

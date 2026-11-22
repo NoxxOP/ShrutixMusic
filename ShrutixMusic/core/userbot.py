@@ -52,13 +52,13 @@ class Userbot(Client):
                 await self.one.start()
                 LOGGER(__name__).info("Assistant 1 started successfully")
                 
-                # Get assistant info first
+                                          
                 self.one.id = self.one.me.id
                 self.one.name = self.one.me.mention
                 self.one.username = self.one.me.username
                 LOGGER(__name__).info(f"Assistant 1 ID: {self.one.id}, Username: {self.one.username}")
                 
-                # Try to join support chats
+                                           
                 try:
                     await self.one.join_chat("ShrutiBots")
                     await self.one.join_chat("ShrutiSupportChat")
@@ -66,24 +66,24 @@ class Userbot(Client):
                 except Exception as e:
                     LOGGER(__name__).warning(f"Assistant 1 failed to join support chats: {e}")
                 
-                # Check if LOGGER_ID is valid
+                                             
                 if not config.LOGGER_ID:
                     LOGGER(__name__).error("LOGGER_ID is not set in config!")
                     exit()
                 
                 LOGGER(__name__).info(f"Trying to send message to LOGGER_ID: {config.LOGGER_ID}")
                 
-                # Try to send message to logger group with better error handling
+                                                                                
                 try:
-                    # First check if we can get chat info
+                                                         
                     chat_info = await self.one.get_chat(config.LOGGER_ID)
                     LOGGER(__name__).info(f"Logger group info: {chat_info.title}")
                     
-                    # Check if assistant is member of the group
+                                                               
                     member = await self.one.get_chat_member(config.LOGGER_ID, self.one.id)
                     LOGGER(__name__).info(f"Assistant 1 status in logger group: {member.status}")
                     
-                    # Try to send message
+                                         
                     await self.one.send_message(config.LOGGER_ID, "✅ Assistant 1 Started Successfully")
                     LOGGER(__name__).info("Assistant 1 successfully sent message to logger group")
                     
@@ -133,7 +133,7 @@ class Userbot(Client):
             except Exception as e:
                 LOGGER(__name__).error(f"Failed to start Assistant 2: {e}")
 
-        # Similar pattern for other assistants...
+                                                 
         if config.STRING3:
             try:
                 await self.three.start()

@@ -70,7 +70,7 @@ async def _current_link(chat, member):
 async def _send_log(text):
     try:
         await nand.send_message(
-            config.LOGGER_ID, text, disable_web_page_preview=True
+            config.LOGGER_ID, text
         )
     except Exception as ex:
         print(ex)

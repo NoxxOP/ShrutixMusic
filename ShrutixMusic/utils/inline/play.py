@@ -1,4 +1,4 @@
-# ShrutixMusic/utils/inline/play.py
+                                   
 import math
 
 from pyrogram.types import InlineKeyboardButton

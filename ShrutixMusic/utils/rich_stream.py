@@ -1,5 +1,4 @@
 import math
-import random
 import re
 
 from pyrogram import enums, errors, types
@@ -107,22 +106,6 @@ def _progress_line(played, dur):
     return f"{played}  {bar}  {dur}"
 
 
-_BUTTON_STYLES = [
-    enums.ButtonStyle.DEFAULT,
-    enums.ButtonStyle.PRIMARY,
-    enums.ButtonStyle.SUCCESS,
-    enums.ButtonStyle.DANGER,
-]
-
-
-def _random_styles():
-    styles = list(_BUTTON_STYLES)
-    styles.append(random.choice(_BUTTON_STYLES))
-    styles.append(random.choice(_BUTTON_STYLES))
-    random.shuffle(styles)
-    return styles
-
-
 def _progress_row(played, dur, style):
     return types.InputRichBlockButtons(
         buttons=[
@@ -131,7 +114,8 @@ def _progress_row(played, dur, style):
                 style=style,
                 callback_data="GetTimer",
             )
-        ]
+        ],
+        align="center",
     )
 
 
@@ -142,15 +126,19 @@ def _queue_len(chat_id):
 
 def _control_rows(_, chat_id, playing, styles, autoplay_on, end_style):
     replay_style, toggle_style, skip_style, queue_style = styles
+
+    def padded(text):
+        return f"\u2009{text}\u2009"
+
     toggle = (
         types.RichMessageButton(
-            text=_["RICH_BTN_PAUSE"],
+            text=padded(_["RICH_BTN_PAUSE"]),
             style=toggle_style,
             callback_data=f"ADMIN Pause|{chat_id}",
         )
         if playing
         else types.RichMessageButton(
-            text=_["RICH_BTN_RESUME"],
+            text=padded(_["RICH_BTN_RESUME"]),
             style=toggle_style,
             callback_data=f"ADMIN Resume|{chat_id}",
         )
@@ -159,50 +147,103 @@ def _control_rows(_, chat_id, playing, styles, autoplay_on, end_style):
         types.InputRichBlockButtons(
             buttons=[
                 types.RichMessageButton(
-                    text=_["RICH_BTN_REPLAY"],
+                    text=padded(_["RICH_BTN_REPLAY"]),
                     style=replay_style,
                     callback_data=f"ADMIN Replay|{chat_id}",
                 ),
                 toggle,
                 types.RichMessageButton(
-                    text=_["RICH_BTN_SKIP"],
+                    text=padded(_["RICH_BTN_SKIP"]),
                     style=skip_style,
                     callback_data=f"ADMIN Skip|{chat_id}",
                 ),
-            ]
+            ],
+            align="center",
         ),
         types.InputRichBlockButtons(
             buttons=[
                 types.RichMessageButton(
-                    text=_["RICH_BTN_QUEUE"].format(_queue_len(chat_id)),
+                    text=padded(_["RICH_BTN_QUEUE"].format(_queue_len(chat_id))),
                     style=queue_style,
                     callback_data=f"nowplaying_queue {chat_id}",
                 ),
                 types.RichMessageButton(
-                    text=_["RICH_BTN_END_QUEUE"],
+                    text=padded(_["RICH_BTN_END_QUEUE"]),
                     style=end_style,
                     callback_data=f"ADMIN Stop|{chat_id}",
                 ),
-            ]
+            ],
+            align="center",
         ),
         types.InputRichBlockButtons(
             buttons=[
                 types.RichMessageButton(
-                    text=_["RICH_BTN_AUTOPLAY_ON"] if autoplay_on else _["RICH_BTN_AUTOPLAY_OFF"],
+                    text=padded(_["RICH_BTN_AUTOPLAY_ON"] if autoplay_on else _["RICH_BTN_AUTOPLAY_OFF"]),
                     style=enums.ButtonStyle.SUCCESS if autoplay_on else enums.ButtonStyle.DEFAULT,
                     callback_data=f"nowplaying_autoplay {chat_id}",
                 ),
-            ]
+            ],
+            align="center",
         ),
     ]
 
+
+def _compact_now_playing_blocks(_, caption_html, chat_id):
+    lines = [line.strip() for line in caption_html.splitlines() if line.strip()]
+    if len(lines) < 4:
+        return _html_caption_to_blocks(caption_html)
+
+    title_match = re.search(r"<a\b[^>]*>.*?</a>", lines[1], re.IGNORECASE)
+    title_html = (
+        title_match.group(0)
+        if title_match
+        else re.sub(r"</?b>", "", lines[1], flags=re.IGNORECASE).strip()
+    )
+
+    details = []
+    for line in lines[2:4]:
+        line = re.sub(r"</?b>", "", line, flags=re.IGNORECASE)
+        line = re.sub(r"^[^\w<]+", "", line, flags=re.UNICODE).strip()
+        details.append(line.split(":", 1)[-1].strip())
+
+    current = db.get(chat_id)
+    requester_id = current[0].get("user_id") if current else None
+    requester = (
+        types.RichTextUrl(
+            text=details[1],
+            url=f"tg://user?id={requester_id}",
+        )
+        if requester_id
+        else details[1]
+    )
+
+    return [
+        types.InputRichBlockSectionHeading(
+            text=types.RichTextBold(text=_["RICH_NOW_PLAYING"]),
+            size=1,
+        ),
+        types.InputRichBlockSectionHeading(
+            text=_parse_inline(title_html),
+            size=2,
+        ),
+        types.InputRichBlockParagraph(
+            text=["⏱ ", details[0], "  ·  👤 ", requester]
+        ),
+    ]
 
 def build_now_playing_blocks(
     _, photo, caption_html, chat_id, played=None, dur=None, playing=True, autoplay_on=False
 ):
     blocks = [types.InputRichBlockPhoto(photo=types.InputMediaPhoto(photo))]
-    blocks += _html_caption_to_blocks(caption_html)
-    styles = _random_styles()
+    blocks += _compact_now_playing_blocks(_, caption_html, chat_id)
+    styles = [
+        enums.ButtonStyle.PRIMARY,
+        enums.ButtonStyle.SUCCESS,
+        enums.ButtonStyle.DANGER,
+        enums.ButtonStyle.PRIMARY,
+        enums.ButtonStyle.PRIMARY,
+        enums.ButtonStyle.DANGER,
+    ]
     if played and dur:
         blocks.append(_progress_row(played, dur, styles[4]))
     blocks += _control_rows(_, chat_id, playing, styles[:4], autoplay_on, styles[5])
@@ -311,7 +352,8 @@ def build_queue_blocks(_, caption_html, chat_id, qid):
                     style=enums.ButtonStyle.SUCCESS,
                     callback_data=f"ADMIN PlayNow|{chat_id}_{qid}",
                 ),
-            ]
+            ],
+            align="center",
         )
     )
     blocks.append(
@@ -327,7 +369,8 @@ def build_queue_blocks(_, caption_html, chat_id, qid):
                     style=enums.ButtonStyle.DANGER,
                     callback_data=f"ADMIN Stop|{chat_id}",
                 ),
-            ]
+            ],
+            align="center",
         )
     )
     return blocks
@@ -375,3 +418,5 @@ async def set_now_playing_state(chat_id, playing):
         return await _edit_rich(mystic, blocks)
     except Exception:
         return None
+
+

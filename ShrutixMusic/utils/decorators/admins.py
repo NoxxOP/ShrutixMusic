@@ -1,4 +1,4 @@
-# ShrutixMusic/utils/decorators/admins.py
+                                         
 from pyrogram.enums import ChatType
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -26,7 +26,6 @@ def AdminRightsCheck(mystic):
             if message.from_user.id not in SUDOERS:
                 return await message.reply_text(
                     text=f"{nand.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
-                    disable_web_page_preview=True,
                 )
 
         try:
@@ -124,7 +123,6 @@ def AdminRightsCheckAnyTime(mystic):
             if message.from_user.id not in SUDOERS:
                 return await message.reply_text(
                     text=f"{nand.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
-                    disable_web_page_preview=True,
                 )
 
         try:
@@ -180,7 +178,6 @@ def AdminActual(mystic):
             if message.from_user.id not in SUDOERS:
                 return await message.reply_text(
                     text=f"{nand.mention} ɪs ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ, ᴠɪsɪᴛ <a href={SUPPORT_CHAT}>sᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ</a> ғᴏʀ ᴋɴᴏᴡɪɴɢ ᴛʜᴇ ʀᴇᴀsᴏɴ.",
-                    disable_web_page_preview=True,
                 )
 
         try:
@@ -212,7 +209,7 @@ def AdminActual(mystic):
                 ).privileges
             except:
                 return
-            if not member.can_manage_video_chats:
+            if member is None or not member.can_manage_video_chats:
                 return await message.reply(_["general_4"])
         return await mystic(client, message, _)
 
@@ -245,7 +242,7 @@ def ActualAdminCB(mystic):
                 ).privileges
             except:
                 return await CallbackQuery.answer(_["general_4"], show_alert=True)
-            if not a.can_manage_video_chats:
+            if a is None or not a.can_manage_video_chats:
                 if CallbackQuery.from_user.id not in SUDOERS:
                     token = await int_to_alpha(CallbackQuery.from_user.id)
                     _check = await get_authuser_names(CallbackQuery.from_user.id)

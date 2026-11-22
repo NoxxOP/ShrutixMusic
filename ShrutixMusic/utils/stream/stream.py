@@ -167,7 +167,7 @@ async def _stream(
                     img,
                     _["stream_1"].format(
                         f"https://t.me/{nand.username}?start=info_{vidid}",
-                        title[:23],
+                        title,
                         duration_min,
                         user_name,
                     ),
@@ -251,7 +251,7 @@ async def _stream(
                     img,
                     _["stream_1"].format(
                         f"https://t.me/{nand.username}?start=info_{vidid}",
-                        title[:23],
+                        title,
                         duration_min,
                         user_name,
                     ),
@@ -300,7 +300,7 @@ async def _stream(
                 original_chat_id,
                 config.SOUNCLOUD_IMG_URL,
                 _["stream_1"].format(
-                    config.SUPPORT_CHAT, title[:23], duration_min, user_name
+                    config.SUPPORT_CHAT, title, duration_min, user_name
                 ),
                 replace=mystic,
             )
@@ -350,7 +350,7 @@ async def _stream(
                 chat_id,
                 original_chat_id,
                 config.TELEGRAM_VIDEO_URL if video else config.TELEGRAM_AUDIO_URL,
-                _["stream_1"].format(link, title[:23], duration_min, user_name),
+                _["stream_1"].format(link, title, duration_min, user_name),
                 replace=mystic,
             )
             db[chat_id][0]["mystic"] = run
@@ -410,7 +410,7 @@ async def _stream(
                 img,
                 _["stream_1"].format(
                     f"https://t.me/{nand.username}?start=info_{vidid}",
-                    title[:23],
+                    title,
                     duration_min,
                     user_name,
                 ),

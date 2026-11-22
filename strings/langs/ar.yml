@@ -211,6 +211,7 @@ SONG_LIVE : "لا يمكن تحميل البث المباشر."
 SONG_TOO_LONG : "هذا المقطع أطول من {0} دقيقة."
 SONG_TOO_BIG : "هذا الملف كبير جداً على تيليجرام."
 
+RICH_NOW_PLAYING : "يعمل الآن"
 RICH_BTN_REPLAY : "↺ إعادة"
 RICH_BTN_PAUSE : "II إيقاف"
 RICH_BTN_RESUME : "▷ استئناف"
