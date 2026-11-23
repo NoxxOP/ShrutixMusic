@@ -1,4 +1,5 @@
 import asyncio
+import os
 import shlex
 from typing import Tuple
 
@@ -43,6 +44,11 @@ def git():
     except GitCommandError:
         LOGGER(__name__).info(f"Invalid Git Command")
     except InvalidGitRepositoryError:
+        if not os.getenv("UPSTREAM_REPO"):
+            LOGGER(__name__).info(
+                "No .git directory and UPSTREAM_REPO is not set; skipping upstream sync."
+            )
+            return
         repo = Repo.init()
         if "origin" in repo.remotes:
             origin = repo.remote("origin")
