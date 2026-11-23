@@ -52,12 +52,15 @@ async def init():
     try:
         await Shruti.stream_call("https://te.legra.ph/file/29f784eb49d230ab62e9e.mp4")
     except NoActiveGroupCall:
-        LOGGER("ShrutixMusic").error(
-            "Please turn on the videochat of your log group\\channel.\n\nStopping Bot..."
+        LOGGER("ShrutixMusic").warning(
+            "Log group voice chat is off; continuing without the startup check."
         )
-        exit()
-    except:
-        pass
+    except Exception as e:
+        LOGGER("ShrutixMusic").warning(
+            "Log group voice chat startup check failed (%s: %s); continuing.",
+            type(e).__name__,
+            e,
+        )
     await Shruti.decorators()
     LOGGER("ShrutixMusic").info(
     "\x53\x68\x72\x75\x74\x69\x78\x20\x4d\x75\x73\x69\x63\x20\x42\x6f\x74\x20\x53\x74\x61\x72\x74\x65\x64\x20\x53\x75\x63\x63\x65\x73\x73\x66\x75\x6c\x6c\x79\x2e\n\n\x44\x6f\x6e'\x74\x20\x66\x6f\x72\x67\x65\x74\x20\x74\x6f\x20\x76\x69\x73\x69\x74\x20\x40\x53\x68\x72\x75\x74\x69\x42\x6f\x74\x73"
