@@ -8,7 +8,6 @@ from pytgcalls.exceptions import NoActiveGroupCall
 import config
 from ShrutixMusic import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, nand
 from ShrutixMusic.core.call import Shruti
-from ShrutixMusic.core.error_logger import report_play_error
 from ShrutixMusic.utils import seconds_to_min, time_to_seconds
 from ShrutixMusic.utils.channelplay import get_channeplayCB
 from ShrutixMusic.utils.database import is_active_chat
@@ -104,12 +103,6 @@ def _play_error(_, error):
     )
 
 
-async def _fail(_, mystic, error):
-    if type(error).__name__ != "AssistantErr":
-        await report_play_error("Play command failed", mystic, error)
-    return await _edit_or_send(mystic, _play_error(_, error))
-
-
 async def _edit_or_send(status_message, text):
     try:
         return await status_message.edit_text(text)
@@ -180,7 +173,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                return await _fail(_, mystic, e)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return
         return
     elif video_telegram:
@@ -222,7 +215,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                return await _fail(_, mystic, e)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return
         return
     elif url:
@@ -234,8 +227,7 @@ async def _play_flow(
                         config.PLAYLIST_FETCH_LIMIT,
                         message.from_user.id,
                     )
-                except Exception as e:
-                    await report_play_error("Query processing failed (play_3)", mystic, e)
+                except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "yt"
@@ -248,8 +240,7 @@ async def _play_flow(
             else:
                 try:
                     details, track_id = await YouTube.track(url)
-                except Exception as e:
-                    await report_play_error("Query processing failed (play_3)", mystic, e)
+                except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "youtube"
                 img = details["thumb"]
@@ -266,8 +257,7 @@ async def _play_flow(
             if "track" in url:
                 try:
                     details, track_id = await Spotify.track(url)
-                except Exception as e:
-                    await report_play_error("Query processing failed (play_3)", mystic, e)
+                except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "youtube"
                 img = details["thumb"]
@@ -284,8 +274,7 @@ async def _play_flow(
             elif "album" in url:
                 try:
                     details, plist_id = await Spotify.album(url)
-                except Exception as e:
-                    await report_play_error("Query processing failed (play_3)", mystic, e)
+                except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "spalbum"
@@ -294,8 +283,7 @@ async def _play_flow(
             elif "artist" in url:
                 try:
                     details, plist_id = await Spotify.artist(url)
-                except Exception as e:
-                    await report_play_error("Query processing failed (play_3)", mystic, e)
+                except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "spartist"
@@ -307,8 +295,7 @@ async def _play_flow(
             if "album" in url:
                 try:
                     details, track_id = await Apple.track(url)
-                except Exception as e:
-                    await report_play_error("Query processing failed (play_3)", mystic, e)
+                except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "youtube"
                 img = details["thumb"]
@@ -317,8 +304,7 @@ async def _play_flow(
                 spotify = True
                 try:
                     details, plist_id = await Apple.playlist(url)
-                except Exception as e:
-                    await report_play_error("Query processing failed (play_3)", mystic, e)
+                except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "apple"
@@ -329,8 +315,7 @@ async def _play_flow(
         elif await Resso.valid(url):
             try:
                 details, track_id = await Resso.track(url)
-            except Exception as e:
-                await report_play_error("Query processing failed (play_3)", mystic, e)
+            except:
                 return await mystic.edit_text(_["play_3"])
             streamtype = "youtube"
             img = details["thumb"]
@@ -338,8 +323,7 @@ async def _play_flow(
         elif await SoundCloud.valid(url):
             try:
                 details, track_path = await SoundCloud.download(url)
-            except Exception as e:
-                await report_play_error("Query processing failed (play_3)", mystic, e)
+            except:
                 return await mystic.edit_text(_["play_3"])
             duration_sec = details["duration_sec"]
             if duration_sec > config.DURATION_LIMIT:
@@ -362,7 +346,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                return await _fail(_, mystic, e)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return
         else:
             try:
@@ -370,7 +354,6 @@ async def _play_flow(
             except NoActiveGroupCall:
                 pass
             except Exception as e:
-                await report_play_error("Index/M3U8 stream_call failed", mystic, e)
                 return await _edit_or_send(
                     mystic,
                     _["general_2"].format(f"{type(e).__name__}: {e}"),
@@ -390,7 +373,7 @@ async def _play_flow(
                     forceplay=fplay,
                 )
             except Exception as e:
-                return await _fail(_, mystic, e)
+                return await _edit_or_send(mystic, _play_error(_, e))
             return await play_logs(message, streamtype="M3u8 or Index Link")
     else:
         if len(message.command) < 2:
@@ -405,8 +388,7 @@ async def _play_flow(
             query = query.replace("-v", "")
         try:
             details, track_id = await YouTube.track(query)
-        except Exception as e:
-            await report_play_error("Query processing failed (play_3)", mystic, e)
+        except:
             return await mystic.edit_text(_["play_3"])
         streamtype = "youtube"
     if str(playmode) == "Direct":
@@ -445,7 +427,7 @@ async def _play_flow(
                 forceplay=fplay,
             )
         except Exception as e:
-            return await _fail(_, mystic, e)
+            return await _edit_or_send(mystic, _play_error(_, e))
         return await play_logs(message, streamtype=streamtype)
     else:
         if plist_type:
@@ -550,8 +532,7 @@ async def _play_music_flow(
     )
     try:
         details, track_id = await YouTube.track(vidid, True)
-    except Exception as e:
-        await report_play_error("Query processing failed (play_3)", mystic, e)
+    except:
         return await mystic.edit_text(_["play_3"])
     if details["duration_min"]:
         duration_sec = time_to_seconds(details["duration_min"])
@@ -588,7 +569,7 @@ async def _play_music_flow(
             forceplay=ffplay,
         )
     except Exception as e:
-        return await _fail(_, mystic, e)
+        return await _edit_or_send(mystic, _play_error(_, e))
     return
 
 
@@ -647,32 +628,27 @@ async def play_playlists_command(client, CallbackQuery, _):
                 CallbackQuery.from_user.id,
                 True,
             )
-        except Exception as e:
-            await report_play_error("Query processing failed (play_3)", mystic, e)
+        except:
             return await mystic.edit_text(_["play_3"])
     if ptype == "spplay":
         try:
             result, spotify_id = await Spotify.playlist(videoid)
-        except Exception as e:
-            await report_play_error("Query processing failed (play_3)", mystic, e)
+        except:
             return await mystic.edit_text(_["play_3"])
     if ptype == "spalbum":
         try:
             result, spotify_id = await Spotify.album(videoid)
-        except Exception as e:
-            await report_play_error("Query processing failed (play_3)", mystic, e)
+        except:
             return await mystic.edit_text(_["play_3"])
     if ptype == "spartist":
         try:
             result, spotify_id = await Spotify.artist(videoid)
-        except Exception as e:
-            await report_play_error("Query processing failed (play_3)", mystic, e)
+        except:
             return await mystic.edit_text(_["play_3"])
     if ptype == "apple":
         try:
             result, apple_id = await Apple.playlist(videoid, True)
-        except Exception as e:
-            await report_play_error("Query processing failed (play_3)", mystic, e)
+        except:
             return await mystic.edit_text(_["play_3"])
     try:
         await stream(
@@ -689,7 +665,7 @@ async def play_playlists_command(client, CallbackQuery, _):
             forceplay=ffplay,
         )
     except Exception as e:
-        return await _fail(_, mystic, e)
+        return await _edit_or_send(mystic, _play_error(_, e))
     return
 
 
