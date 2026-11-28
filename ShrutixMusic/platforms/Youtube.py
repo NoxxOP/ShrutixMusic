@@ -7,6 +7,15 @@ from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 from py_yt import VideosSearch, Playlist
 import aiohttp
+import time
+
+from ShrutixMusic.core.error_logger import (
+    format_report,
+    key_state,
+    mask,
+    remember_failure,
+    send_log,
+)
 
 API_URL = os.environ.get("SHRUTI_API_URL", "https://api.shrutibots.in")
 
@@ -60,6 +69,10 @@ def time_to_seconds(time):
 async def _download_media(link: str, kind: str, timeout: int) -> str:
     video_id = link.split("v=")[-1].split("&")[0] if "v=" in link else link
     if not video_id or len(video_id) < 3:
+        remember_failure(
+            str(video_id),
+            {"stage": "validate", "reason": f"Invalid video id from link: {link!r}"},
+        )
         return None
 
     is_audio = kind == "audio"
@@ -76,14 +89,39 @@ async def _download_media(link: str, kind: str, timeout: int) -> str:
     if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
         return file_path
 
+    request_url = f"{API_URL}/download"
+    params = {"url": video_id, "type": kind, "api_key": API_KEY}
+    report = {
+        "stage": "download",
+        "video_id": video_id,
+        "type": kind,
+        "request": f"GET {request_url}?url={video_id}&type={kind}&api_key=***",
+        "api_key": key_state(API_KEY),
+        "timeout": f"{timeout}s",
+        "save_path": os.path.abspath(file_path),
+    }
+    started = time.monotonic()
+    if API_KEY in ("", "YOUR_API_KEY"):
+        report["reason"] = "SHRUTI_API_KEY is not configured"
+        remember_failure(video_id, report)
+        return None
+
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{API_URL}/download",
-                params={"url": video_id, "type": kind, "api_key": API_KEY},
-                timeout=aiohttp.ClientTimeout(total=timeout)
+                request_url,
+                params=params,
+                timeout=aiohttp.ClientTimeout(total=timeout),
             ) as resp:
+                report["http_status"] = resp.status
+                report["content_type"] = resp.headers.get("Content-Type")
+                report["content_length"] = resp.headers.get("Content-Length")
                 if resp.status != 200:
+                    body = await resp.text(errors="replace")
+                    report["reason"] = "API returned a non-200 response"
+                    report["response_body"] = body[:500]
+                    report["elapsed"] = f"{time.monotonic() - started:.2f}s"
+                    remember_failure(video_id, report)
                     return None
                 if external:
                     found = _find_external(external, video_id, extensions, resp)
@@ -92,16 +130,34 @@ async def _download_media(link: str, kind: str, timeout: int) -> str:
                 with open(file_path, "wb") as f:
                     async for chunk in resp.content.iter_chunked(131072):
                         f.write(chunk)
-        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
+        if size > 0:
             return file_path
+        report["reason"] = "API replied 200 but the downloaded file is empty or missing"
+        report["file_size"] = size
+        report["elapsed"] = f"{time.monotonic() - started:.2f}s"
+        remember_failure(video_id, report)
         return None
-    except Exception:
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except Exception:
-                pass
-        return None
+    except asyncio.TimeoutError as e:
+        report["reason"] = f"Request timed out after {timeout}s"
+        report["exception"] = f"{type(e).__name__}: {e}"
+    except aiohttp.ClientError as e:
+        report["reason"] = "Network/connection error while calling the API"
+        report["exception"] = f"{type(e).__name__}: {e}"
+    except OSError as e:
+        report["reason"] = "Filesystem error while saving the download"
+        report["exception"] = f"{type(e).__name__}: {e}"
+    except Exception as e:
+        report["reason"] = "Unexpected error during download"
+        report["exception"] = f"{type(e).__name__}: {e}"
+    report["elapsed"] = f"{time.monotonic() - started:.2f}s"
+    remember_failure(video_id, report)
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+        except OSError:
+            pass
+    return None
 
 
 async def download_song(link: str) -> str:
@@ -132,9 +188,22 @@ async def get_autoplay(
     if seed_id and seed_id != video_id:
         params["seed_id"] = seed_id
 
+    report = {
+        "stage": "autoplay",
+        "video_id": video_id,
+        "request": mask(f"GET {API_URL}/autoplay?video_id={video_id}&api_key=***"),
+        "api_key": key_state(API_KEY),
+        "timeout": f"{timeout}s",
+    }
+    if API_KEY in ("", "YOUR_API_KEY"):
+        report["reason"] = "SHRUTI_API_KEY is not configured"
+        await send_log(format_report("Autoplay API request failed", report))
+        return []
+
     attempt = 0
     while attempt < retries:
         attempt += 1
+        report["attempts"] = f"{attempt}/{retries}"
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
@@ -142,21 +211,29 @@ async def get_autoplay(
                     params=params,
                     timeout=aiohttp.ClientTimeout(total=timeout),
                 ) as resp:
+                    report["http_status"] = resp.status
                     if resp.status == 200:
                         data = await resp.json()
                         return data.get("tracks", [])
+                    report["reason"] = "API returned a non-200 response"
+                    report["response_body"] = (await resp.text(errors="replace"))[:500]
                     if resp.status in AUTOPLAY_RETRYABLE_STATUS and attempt < retries:
                         await asyncio.sleep(AUTOPLAY_RETRY_DELAY)
                         continue
-                    return []
-        except (asyncio.TimeoutError, aiohttp.ClientError):
+                    break
+        except (asyncio.TimeoutError, aiohttp.ClientError) as e:
+            report["reason"] = "Timeout or network error while calling the API"
+            report["exception"] = f"{type(e).__name__}: {e}"
             if attempt < retries:
                 await asyncio.sleep(AUTOPLAY_RETRY_DELAY)
                 continue
-            return []
-        except Exception:
-            return []
+            break
+        except Exception as e:
+            report["reason"] = "Unexpected error (bad JSON or similar)"
+            report["exception"] = f"{type(e).__name__}: {e}"
+            break
 
+    await send_log(format_report("Autoplay API request failed", report))
     return []
 
 

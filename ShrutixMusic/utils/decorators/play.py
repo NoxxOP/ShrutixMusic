@@ -3,13 +3,14 @@ import asyncio
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import (
     ChatAdminRequired,
+    RPCError,
     InviteRequestSent,
     UserAlreadyParticipant,
     UserNotParticipant,
 )
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from ShrutixMusic import YouTube, nand
+from ShrutixMusic import LOGGER, YouTube, nand
 from ShrutixMusic.misc import SUDOERS
 from ShrutixMusic.utils.database import (
     get_assistant,
@@ -26,9 +27,19 @@ from strings import get_string
 
 links = {}
 
+def _write_forbidden(error, chat_id):
+    if getattr(error, "ID", None) != "CHAT_WRITE_FORBIDDEN":
+        return False
+    LOGGER(__name__).warning(
+        "Cannot send messages in chat %s (CHAT_WRITE_FORBIDDEN); ignoring the command.",
+        chat_id,
+    )
+    return True
+
+
 
 def PlayWrapper(command):
-    async def wrapper(client, message):
+    async def run(client, message):
         language = await get_lang(message.chat.id)
         _ = get_string(language)
         if message.sender_chat:
@@ -190,5 +201,12 @@ def PlayWrapper(command):
             url,
             fplay,
         )
+
+    async def wrapper(client, message):
+        try:
+            return await run(client, message)
+        except RPCError as e:
+            if not _write_forbidden(e, message.chat.id):
+                raise
 
     return wrapper

@@ -1,5 +1,6 @@
+import os
 import sys
-if sys.platform != "win32":
+if sys.platform != "win32" and os.getenv("USE_UVLOOP", "1") != "0":
     import uvloop
     uvloop.install()
 
@@ -32,7 +33,8 @@ class Shruti(Client):
             api_id=config.API_ID,
             api_hash=config.API_HASH,
             bot_token=config.BOT_TOKEN,
-            in_memory=True,
+            in_memory=os.getenv("PERSIST_SESSION", "1") == "0",
+            workdir=os.getcwd(),
             parse_mode=ParseMode.HTML,
             max_concurrent_transmissions=7,
         )

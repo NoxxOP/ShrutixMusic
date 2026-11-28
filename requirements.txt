@@ -10,7 +10,7 @@ httpx[http2]
 motor
 pillow
 psutil
-py-tgcalls==3.0.0
+py-tgcalls==2.3.3
 kurigram>=2.2.26
 pykeyboard
 python-dotenv

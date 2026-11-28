@@ -7,6 +7,7 @@ from uuid import uuid4
 import config
 from ShrutixMusic import Carbon, YouTube, nand
 from ShrutixMusic.core.call import Shruti
+from ShrutixMusic.core.error_logger import format_report, pop_failure, send_log
 from ShrutixMusic.misc import db
 from ShrutixMusic.utils.database import add_active_video_chat, is_active_chat
 from ShrutixMusic.utils.exceptions import AssistantErr
@@ -26,12 +27,21 @@ async def _fetch(_, chat_id, vidid, mystic, video):
     task = asyncio.ensure_future(
         YouTube.download(vidid, mystic, videoid=True, video=status)
     )
-    await Shruti.await_prejoin(chat_id)
+    task_error = None
     try:
         file_path, direct = await task
-    except Exception:
+    except Exception as e:
         file_path, direct = None, False
+        task_error = e
     if not file_path:
+        fields = pop_failure(str(vidid)) or {
+            "stage": "download",
+            "video_id": vidid,
+            "reason": "No download report was recorded",
+        }
+        fields["chat_id"] = chat_id
+        fields["video"] = bool(video)
+        await send_log(format_report("Failed to fetch track (download)", fields, task_error))
         raise AssistantErr(_["play_14"])
     return file_path, direct
 

@@ -1,6 +1,7 @@
 from pyrogram import filters
 
 from ShrutixMusic import YouTube, nand
+from ShrutixMusic.core.error_logger import report_play_error
 from ShrutixMusic.utils.channelplay import get_channeplayCB
 from ShrutixMusic.utils.decorators.language import languageCB
 from ShrutixMusic.utils.stream.stream import stream
@@ -53,6 +54,8 @@ async def play_live_stream(client, CallbackQuery, _):
             )
         except Exception as e:
             ex_type = type(e).__name__
+            if ex_type != "AssistantErr":
+                await report_play_error("Live stream failed", mystic, e)
             err = e if ex_type == "AssistantErr" else _["general_2"].format(f"{ex_type}: {e}")
             return await mystic.edit_text(err)
     else:
